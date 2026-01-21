@@ -1,9 +1,6 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { ProductSchema, ProductsResponseSchema } from "../schemas/product.schema";
-import { z } from "zod";
-
-export type Product = z.infer<typeof ProductSchema>;
-export type ProductsResponse = z.infer<typeof ProductsResponseSchema>;
+import { Product, ProductsResponse } from "../schemas/product.schema";
 
 // Api Client
 export class ProductApi {
