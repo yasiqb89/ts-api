@@ -5,10 +5,8 @@ import { LoginResponseSchema, AuthMeSchema, RefreshResponseSchema, LoginResponse
 export class AuthApi {
     constructor(private readonly request: APIRequestContext) { }
 
-    async login(username: string, password: string, expiresInMins?: number) {
-        return await this.request.post("/auth/login", {
-            data: { username, password, ...(expiresInMins ? { expiresInMins } : {}) },
-        });
+    async login(username: string, password: string) {
+        return await this.request.post("/auth/login", { data: { username, password } });
     }
 
     async me(accessToken: string) {
@@ -17,14 +15,8 @@ export class AuthApi {
         });
     }
 
-    async refresh(refreshToken: string, expiresInMins?: number) {
-        return await this.request.post("/auth/refresh", {
-            data: { refreshToken, ...(expiresInMins ? { expiresInMins } : {}) },
-        });
-    }
-
-    async loginJson(username: string, password: string, expiresInMins?: number): Promise<LoginResponse> {
-        const res = await this.login(username, password, expiresInMins);
+    async loginJson(username: string, password: string): Promise<LoginResponse> {
+        const res = await this.login(username, password);
         if (!res.ok()) throw new Error(`POST /auth/login failed: ${res.status()}`);
         return LoginResponseSchema.parse(await res.json());
     }
@@ -35,8 +27,12 @@ export class AuthApi {
         return AuthMeSchema.parse(await res.json());
     }
 
-    async refreshJson(refreshToken: string, expiresInMins?: number): Promise<RefreshResponse> {
-        const res = await this.refresh(refreshToken, expiresInMins);
+    async refresh(refreshToken: string) {
+        return await this.request.post("/auth/refresh", { data: { refreshToken } });
+    }
+
+    async refreshJson(refreshToken: string): Promise<RefreshResponse> {
+        const res = await this.refresh(refreshToken);
         if (!res.ok()) throw new Error(`POST /auth/refresh failed: ${res.status()}`);
         return RefreshResponseSchema.parse(await res.json());
     }
