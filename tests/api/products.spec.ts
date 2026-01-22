@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { ProductApi } from "../../src/api/productApi";
 import { ProductSchema } from "../../src/schemas/product.schema";
+import { ErrorSchema } from "../../src/schemas/error.schema";
 
 
 test('Get /products/1 returns product (happy path)', async ({ request }) => {
@@ -19,10 +20,11 @@ test("GET /products/0 returns 404 (negative case)", async ({ request }) => {
     expect(res.ok()).toBeFalsy();
     expect(res.status()).toBe(404);
 
-    const body = await res.json();
-    expect(body).toEqual(expect.any(Object));
-    expect(body).toHaveProperty("message");
-    console.log(body);
+    const raw = await res.json();
+    const err = ErrorSchema.parse(raw);
+
+    expect(err.message.length).toBeGreaterThan(0);
+    console.log(err);
 });
 
 
@@ -45,8 +47,10 @@ test("POST /products/add creates a product (happy path)", async ({ request }) =>
 test("PUT /products/1 updates product", async ({ request }) => {
     const api = new ProductApi(request);
 
-    const payload = { title: "PUT overwrite attempt", price: 111 };
-
+    const payload = {
+        title: "PUT overwrite attempt",
+        price: 111
+    };
     const res = await api.updateProductPut(1, payload);
 
     expect(res.ok()).toBeTruthy();
@@ -62,8 +66,9 @@ test("PUT /products/1 updates product", async ({ request }) => {
 test("PATCH /products/1 updates only provided fields", async ({ request }) => {
     const api = new ProductApi(request);
 
-    const payload = { price: 222 };
-
+    const payload = {
+        price: 222
+    };
     const res = await api.updateProductPatch(1, payload);
 
     expect(res.ok()).toBeTruthy();
@@ -98,8 +103,4 @@ test("GET /products/search with nonsense returns empty list", async ({ request }
     console.log(res);
 
 });
-
-
-
-
 

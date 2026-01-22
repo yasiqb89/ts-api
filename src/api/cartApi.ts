@@ -1,5 +1,4 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
-import { ProductSchema, ProductsResponseSchema } from "../schemas/product.schema";
 import { CartItem, Cart, CartItemSchema, CartSchema } from "../schemas/cart.schema";
 
 
@@ -14,7 +13,7 @@ export class CartApi {
         return await this.request.get(`/carts/user/${userId}`);
     }
 
-    async createCart(payload: Record<string, unknown>) {
+    async createCart(payload: Record<string, unknown>): Promise<APIResponse> {
         return await this.request.post(`/carts/add`, { data: payload });
     }
 
@@ -25,6 +24,10 @@ export class CartApi {
         }
         const raw = await res.json();
         return CartSchema.parse(raw);
+    }
+
+    async updateCartPatch(id: number, payload: Record<string, unknown>): Promise<APIResponse> {
+        return await this.request.patch(`/carts/${id}`, { data: payload });
     }
 
 
